@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>This</title>
+	</head>
+	<body>
+		<div>
+			<button id="button">버튼</button>
+		</div>
+		<script>
+			/*
+			   this의 의미
+
+			   1. 그냥 일반 함수에서 쓰면 window
+			       - 사실상 전역공간에서 만들면 this 가 있는 함수를 포함하는 object 가 window 인 것이므로 2번과 동일하다고 봐도 무방
+			   2. Object 내의 함수(메소드)에서 쓰면 함수를 동작시키는 Object
+			   3. constructor 안에서 쓰면 constructor로 새로생성되는 Object
+			       -constructor는 쉽게 말하면 Object를 복사해서 생성해주는 기계
+			   4. eventlistener 안에서 쓰면 this는 e.currentTarget이라는 의미
+			*/
+
+			/* 기계(constructor) 만드는 법 */
+			function 기계() {
+				this.name = "Kim";
+				//새로생성되는 오브젝트의 이름 key값에 'Kim'이라는 value를 집어넣어 달라는 뜻
+			}
+			// 여기서 this는 기계로부터 새로 생성 될 오브젝트
+
+			/* 기계(constructor)에서 오브젝트를 뽑는 법 */
+			var object = new 기계();
+			console.log(object); //기계 {이름: 'Kim'}
+			//새로운 오브젝트는 this라는 키워드 덕분에 {이름: 'Kim'} 이라는 값을 가지고 있음.
+
+			/*  eventlistener 안에서 this는 e.currentTarget */
+			document.getElementById("button").addEventListener("click", function (e) {
+				console.log(this);
+				console.log(e.currentTarget);
+				//e.currentTarget은 지금 이벤트가 동작하는 곳 = 지금 addEventListener가 부착된 HTML 요소
+				console.log(this == e.currentTarget); //true
+			});
+
+			/* Case1 */
+			//이벤트리스너 안에서 콜백함수를 쓴다면 this는?
+			document.getElementById("button").addEventListener("click", function (e) {
+				var Array = [1, 2, 3];
+				Array.forEach(function (a) {
+					console.log(a);
+					console.log(this);
+				});
+			});
+			//this의 1번이나 2번뜻 - 쌩으로 있는 콜백함수는 그냥 일반함수랑 똑같기 때문에 window가 출력된다.
+
+			/* Case2 */
+			//오브젝트 내에서 콜백함수를 쓴다면 this는?
+			var Obj = {
+				name: ["김", "이", "박"],
+				func: function () {
+					console.log(this);
+					//위 함수를 소유한 오브젝트를 출력해준다.
+					Obj.name.forEach(function () {
+						console.log(this);
+						//이게 그냥 일반함수이기때문에 window를 출력해준다.
+					});
+					Obj.name.forEach(() => {
+						console.log(this);
+						//arrow function의 특징 - 내부의 this값을 변화시키지 않는다. (외부의 this값 그대로 재사용)
+						//this값을 재설정 해주지 않는 함수! 따라서 상위값의 this와 동일하게 출력해준다. (함수를 소유한 오브젝트를 출력)
+					});
+				},
+			};
+			Obj.func();
+
+			/* Case3 */
+			//오브젝트 내에서 콜백함수를 쓴다면 this는? - 2
+
+			let obj2 = {
+				data: {
+					func1: () => {
+						console.log(this);
+					},
+					func2: function () {
+						console.log(this);
+					},
+					func3() {
+						console.log(this);
+					},
+				},
+			};
+
+			obj2.data.func1();
+			// arrow function 은 this 값을 함수 바깥에서 그대로 가져오므로(=함수 내부의 this값을 새로 바꿔주지 않기 때문에), window 를 의미한다.
+			obj2.data.func2();
+			// this 가 있는 func2() 함수를 포함하고 있는 object, 여기서는 data를 의미한다.
+			obj2.data.func3();
+			// func2() 함수는 func3() 함수처럼도 사용이 가능하다. 여기서는 data를 의미한다.
+		</script>
+	</body>
+</html>
