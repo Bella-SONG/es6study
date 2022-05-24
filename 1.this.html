@@ -14,27 +14,79 @@
 			/*
 			   this의 의미
 
-			   1. 그냥 일반 함수에서 쓰면 window
+			   1. 그냥 쓰거나, 일반 함수에서 쓰면 window
 			       - 사실상 전역공간에서 만들면 this 가 있는 함수를 포함하는 object 가 window 인 것이므로 2번과 동일하다고 봐도 무방
-			   2. Object 내의 함수(메소드)에서 쓰면 함수를 동작시키는 Object
+			   2. Object 내의 함수(=메소드)에서 쓰면 함수를 동작시키는(=그 함수를 가지고있는) Object
 			   3. constructor 안에서 쓰면 constructor로 새로생성되는 Object
 			       -constructor는 쉽게 말하면 Object를 복사해서 생성해주는 기계
 			   4. eventlistener 안에서 쓰면 this는 e.currentTarget이라는 의미
 			*/
 
+			/* 1-1. 그냥 쓰거나 일반 함수 안에서 쓸 경우 - window */
+
+			console.log(this);
+			// window - 기본 함수들 수납공간, 모든 전역변수, 함수, DOM을 보관하고 관리하는 전역객체
+
+			function 함수() {
+				console.log(this);
+			}
+			함수();
+		</script>
+
+		<script>
+			"use strict";
+			/* 1-2. strict모드인 경우 함수 안에서의 this는 undefined */
+
+			//strict mode
+			//var키워드 없이 변수를 선언하거나, 변수를 arguments라는 이상한 키워드로 선언하거나 하는 실수를 방지해 준다.
+			function 함수2() {
+				console.log(this);
+			}
+			함수2();
+
+			/* 2. 오브젝트 내의 함수(=메소드)안에서의 this는 그 함수를 가지고 있는 오브젝트 */
+
+			let obj = {
+				data: {
+					func1: function () {
+						console.log(this);
+					},
+					func2: () => {
+						console.log(this);
+					},
+					func3() {
+						console.log(this);
+					},
+				},
+			};
+
+			obj.data.func1();
+			// this 가 있는 func2() 함수를 포함하고 있는 object, 여기서는 obj.data를 의미한다.
+			obj.data.func2();
+			// arrow function 은 상위요소에 있는 this 값을 그대로 물려받아서 쓴다.(함수 밖에 있던 this값을 그대로 쓴다. = 함수 내부의 this값을 새로 바꿔주지 않기 때문에), window 를 의미한다.
+			obj.data.func3();
+			// func2() 함수는 func3() 함수처럼도 사용이 가능하다. 여기서는 obj.data를 의미한다.
+
+			//함수나 변수를 전역공간에서 만들면 {window}라는 object에 보관한다. 스크립트 전체가 window라는 object라고 생각해도 무방한 것 같다. 즉 나를 담고 있는 object를 출력해주는게 this의 역할!
+			console.log(함수 == window.함수); //true
+		</script>
+
+		<script>
+			/* 3. constructor안에서 쓰면 this는 새로 생성되는 object */
 			/* 기계(constructor) 만드는 법 */
 			function 기계() {
 				this.name = "Kim";
 				//새로생성되는 오브젝트의 이름 key값에 'Kim'이라는 value를 집어넣어 달라는 뜻
+				console.log(this); //기계 {name: 'Kim'}
 			}
-			// 여기서 this는 기계로부터 새로 생성 될 오브젝트
+			// 여기서 this는 새로 생성되는 오브젝트(instance)
 
 			/* 기계(constructor)에서 오브젝트를 뽑는 법 */
 			var object = new 기계();
 			console.log(object); //기계 {이름: 'Kim'}
 			//새로운 오브젝트는 this라는 키워드 덕분에 {이름: 'Kim'} 이라는 값을 가지고 있음.
 
-			/*  eventlistener 안에서 this는 e.currentTarget */
+			/* 4. eventlistener 안에서 this는 e.currentTarget */
 			document.getElementById("button").addEventListener("click", function (e) {
 				console.log(this);
 				console.log(e.currentTarget);
@@ -44,6 +96,7 @@
 
 			/* Case1 */
 			//이벤트리스너 안에서 콜백함수를 쓴다면 this는?
+			//콜백함수 - 함수 안에 파라미터역할로 들어가는 함수()
 			document.getElementById("button").addEventListener("click", function (e) {
 				var Array = [1, 2, 3];
 				Array.forEach(function (a) {
@@ -52,50 +105,27 @@
 				});
 			});
 			//this의 1번이나 2번뜻 - 쌩으로 있는 콜백함수는 그냥 일반함수랑 똑같기 때문에 window가 출력된다.
+			//4번의 뜻에 의하면 eventlistener 안에서 쓴 것은 아니다, 내부인 것은 맞지만 그 안에서 function을 한번 더 만났기 때문에 의미가 변한다.
 
 			/* Case2 */
 			//오브젝트 내에서 콜백함수를 쓴다면 this는?
-			var Obj = {
+			let Obj2 = {
 				name: ["김", "이", "박"],
 				func: function () {
 					console.log(this);
 					//위 함수를 소유한 오브젝트를 출력해준다.
-					Obj.name.forEach(function () {
+					Obj2.name.forEach(function () {
 						console.log(this);
 						//이게 그냥 일반함수이기때문에 window를 출력해준다.
 					});
-					Obj.name.forEach(() => {
+					Obj2.name.forEach(() => {
 						console.log(this);
 						//arrow function의 특징 - 내부의 this값을 변화시키지 않는다. (외부의 this값 그대로 재사용)
 						//this값을 재설정 해주지 않는 함수! 따라서 상위값의 this와 동일하게 출력해준다. (함수를 소유한 오브젝트를 출력)
 					});
 				},
 			};
-			Obj.func();
-
-			/* Case3 */
-			//오브젝트 내에서 콜백함수를 쓴다면 this는? - 2
-
-			let obj2 = {
-				data: {
-					func1: () => {
-						console.log(this);
-					},
-					func2: function () {
-						console.log(this);
-					},
-					func3() {
-						console.log(this);
-					},
-				},
-			};
-
-			obj2.data.func1();
-			// arrow function 은 this 값을 함수 바깥에서 그대로 가져오므로(=함수 내부의 this값을 새로 바꿔주지 않기 때문에), window 를 의미한다.
-			obj2.data.func2();
-			// this 가 있는 func2() 함수를 포함하고 있는 object, 여기서는 data를 의미한다.
-			obj2.data.func3();
-			// func2() 함수는 func3() 함수처럼도 사용이 가능하다. 여기서는 data를 의미한다.
+			Obj2.func();
 		</script>
 	</body>
 </html>
