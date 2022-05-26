@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Arrow function</title>
+	</head>
+	<body>
+		<div><button id="button">버튼</button></div>
+		<button id="btn">Button</button>
+		<button id="btn2">Button</button>
+	</body>
+	<script>
+		/* 함수를 만드는 이유 */
+
+		// 1.코드들을 기능으로 묶고 싶을때, 한 단어로 축약하고 싶을 때 사용
+		// 2.입출력 기계를(입출력 기능, constructor) 만들고 싶을 때 사용
+
+		let fn = a => a + 10;
+		fn(5); // 15
+
+		/* Arrow function의 장점 */
+
+		// 1. 입출력 기계 (constructor) 를 만들 때 보기 쉬움
+		// 2. 파라미터가 1개일 때 소괄호 생략 가능
+		// 3. 코드가 한 줄이면 중괄호 및 return 도 생략 가능
+
+		/* Arrow function 예시 */
+
+		// 1. forEach 콜백함수
+
+		[1, 2, 3, 4].forEach(function (a) {
+			console.log(a); // 1,2,3,4
+		});
+
+		[1, 2, 3, 4].forEach(a => console.log(a)); // 1,2,3,4
+
+		// 2. eventListener
+		// arrow function eventListener 에서 this 는 function 밖의 this값을 내부에서 그대로 사용
+		// 일반 function eventListener 에서 this 는 e.currentTarget
+
+		document.getElementById("button").addEventListener("click", function () {
+			console.log(this);
+			// <button id="btn">버튼</button>
+		});
+
+		document.getElementById("button").addEventListener("click", e => {
+			console.log(this); // window
+			//이러한 상황에서 일반function에서의 this의 의미대로 쓰고싶다면
+			console.log(e.currentTarget);
+			// <button id="btn">버튼</button>
+		});
+
+		// 3. Object 안의 함수
+
+		let obj = {
+			func: () => {
+				console.log(this);
+			},
+		};
+
+		obj.func(); // window
+
+		/* 연습문제 */
+
+		// 1. 간단한 메소드 만들기 - 	person.sayHi();를 치면 Hi! I'm Bella
+
+		var person = {
+			name: "Bella",
+			sayHi: function () {
+				console.log(`Hi! I'm ${this.name}`);
+			},
+		};
+
+		person.sayHi(); //Hi! I'm Bella
+
+		// 2. 오브젝트 내의 데이터를 전부 더해주는 메소드 만들기 - 자료.addAll()라고 쓰면 모든 숫자를 더해서 콘솔창에 출력해줘야함
+		//조건 - 자료라는 object 중괄호 {} 내에 코드 작성 금지
+
+		let sum = 0;
+		var 자료 = {
+			data: [1, 2, 3, 4, 5],
+		};
+
+		//방법1
+		자료.addAll = function () {
+			for (let i = 0; i < 자료.data.length; i++) {
+				sum += 자료.data[i];
+			}
+			console.log(sum);
+			return (sum = 0);
+		};
+
+		//방법2
+		자료.addAll2 = function () {
+			자료.data.forEach(a => {
+				sum = sum + a;
+			});
+			console.log(sum);
+		};
+
+		자료.addAll(); //15
+		자료.addAll2(); //15
+
+		// 3. setTimeout 이용해보기
+		// setTimeout을 이용해서 1초 후에 this.innerHTML을 콘솔창에 출력하고 싶으면 어떻게 코드를 수정해야할까?
+
+		//방법1 - 화살표함수는 this를 바꾸지 않는다는 것을 이용
+		document.getElementById("btn").addEventListener("click", function () {
+			setTimeout(() => {
+				// console.log(this);
+				console.log(this.innerHTML);
+			}, 1000);
+		});
+
+		//방법2 - 바뀌기전의 this를 변수에 넣고 setTimeout함수.
+		document.getElementById("btn2").addEventListener("click", function () {
+			var text = this;
+			setTimeout(function () {
+				console.log(text.innerHTML);
+			}, 1000);
+		});
+	</script>
+</html>
